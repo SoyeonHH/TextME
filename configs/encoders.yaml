@@ -1,0 +1,65 @@
+# Encoder configurations for TextME
+
+# Supported encoders with their default settings
+encoders:
+  clip:
+    modality: image
+    embedding_dim: 1024
+    default_dataset: coco
+    model_name: ViT-L-14
+    pretrained: openai
+
+  viclip:
+    modality: video
+    embedding_dim: 768
+    default_dataset: msrvtt
+
+  clap:
+    modality: audio
+    embedding_dim: 512
+    default_dataset: audiocaps
+    model_name: laion/larger_clap_music_and_speech
+
+  uni3d:
+    modality: 3d
+    embedding_dim: 1024
+    default_dataset: objaverse
+
+  languagebind:
+    modality: [image, audio, video, depth, thermal]
+    embedding_dim: 768
+    default_dataset: coco
+    model_name: LanguageBind/LanguageBind_Image
+
+  cxr_clip:
+    modality: xray
+    embedding_dim: 512
+    default_dataset: chestxray
+
+  moleculestm:
+    modality: molecule
+    embedding_dim: 256
+    default_dataset: pubchem
+
+  remoteclip:
+    modality: remote_sensing
+    embedding_dim: 768
+    default_dataset: rsicd
+
+# Anchor models (LLM embedding models)
+anchors:
+  qwen3-embedding-4b:
+    embedding_dim: 2560
+    model_name: Alibaba-NLP/Qwen3-Embedding-4B
+
+  qwen3-embedding-0.6b:
+    embedding_dim: 1024
+    model_name: Alibaba-NLP/Qwen3-Embedding-0.6B
+
+  nv-embed-v2:
+    embedding_dim: 4096
+    model_name: nvidia/NV-Embed-v2
+
+  gte-qwen2-1.5b:
+    embedding_dim: 1536
+    model_name: Alibaba-NLP/gte-Qwen2-1.5B-instruct

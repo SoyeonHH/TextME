@@ -1,0 +1,48 @@
+# TextME Default Configuration
+
+# Training hyperparameters
+training:
+  batch_size: 512
+  epochs: 50
+  learning_rate: 5.0e-4
+  weight_decay: 0.01
+  warmup_epochs: 5
+  precision: fp16
+
+# Loss function
+loss:
+  type: hard_negative  # Options: contrastive, hard_negative, mse
+  temperature: 0.07
+  top_margin: 0.9
+  bottom_margin: 0.1
+
+# Optimizer
+optimizer:
+  type: adamw
+  betas: [0.9, 0.999]
+
+# Scheduler
+scheduler:
+  type: cosine
+  min_lr: 1.0e-6
+
+# Projection head
+projector:
+  hidden_multiplier: 2  # hidden_dim = encoder_dim * multiplier
+  out_dim: 2560  # Qwen3-Embedding-4B dimension
+  activation: gelu
+  init_mode: xavier
+
+# Offset computation
+offset:
+  num_samples: 5000
+
+# Data
+data:
+  sample_size: 100000
+  num_workers: 4
+
+# Logging
+logging:
+  log_every: 50
+  save_every: 10
