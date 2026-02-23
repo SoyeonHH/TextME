@@ -12,6 +12,21 @@ Official implementation of **TextME**, a text-only modality expansion framework 
   <img src="assets/overview.jpg" width="90%">
 </p>
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Supported Modalities](#supported-modalities)
+- [Installation](#installation)
+- [Pretrained Checkpoints](#pretrained-checkpoints)
+- [Quick Start](#quick-start)
+- [Training Pipeline](#training-pipeline)
+- [Results](#results)
+- [Project Structure](#project-structure)
+- [Data](#data)
+- [Configuration](#configuration)
+- [Citation](#citation)
+- [Acknowledgments](#acknowledgments)
+
 ## Overview
 
 TextME leverages the **consistent modality gap** property of pretrained contrastive encoders to enable zero-shot cross-modal transfer using only text descriptions. Our framework:
@@ -268,77 +283,13 @@ python evaluate.py \
 
 ## Training Pipeline
 
-TextME operates in three stages:
+TextME operates in three stages (see Figure 2 in the [paper](https://arxiv.org/abs/2602.03098) for an illustration):
 
-```
-┌─────────────────────────────────────────────────────────────────────────┐
-│ Stage 1: Offset Computation                                             │
-│ ─────────────────────────────────────────────────────────────────────── │
-│ Estimate μ_text and μ_modal from ~5K samples per modality               │
-│ Creates interchangeable space where centered embeddings are equivalent  │
-└─────────────────────────────────────────────────────────────────────────┘
-                                    ↓
-┌─────────────────────────────────────────────────────────────────────────┐
-│ Stage 2: Text-to-Anchor Alignment (Training)                            │
-│ ─────────────────────────────────────────────────────────────────────── │
-│ Train projection P_m: ℝ^{d_m} → ℝ^{d_h} using only text descriptions   │
-│ Align centered text embeddings with LLM anchor space                    │
-└─────────────────────────────────────────────────────────────────────────┘
-                                    ↓
-┌─────────────────────────────────────────────────────────────────────────┐
-│ Stage 3: Zero-Shot Cross-Modal Transfer (Inference)                     │
-│ ─────────────────────────────────────────────────────────────────────── │
-│ Apply centering to modal embeddings: ê_x = E_modal(x) - μ_modal         │
-│ Project to anchor space: e_final = P_m(ê_x)                             │
-└─────────────────────────────────────────────────────────────────────────┘
-```
+**Stage 1: Offset Computation.** We estimate modality-specific centroids (μ_text and μ_modal) from ~5K unpaired samples per modality. Subtracting these centroids creates an *interchangeable space* where centered text and modal embeddings become functionally equivalent.
 
-## Core Components
+**Stage 2: Text-to-Anchor Alignment.** Using only text descriptions, we train a lightweight 2-layer MLP projection head to map centered text embeddings into the Qwen3-Embedding-4B anchor space (2560-dim). Training uses contrastive loss with hard negative mining.
 
-### ProjectionHead (from `textme/models/projector.py`)
-
-Two-layer MLP that maps encoder embeddings to the LLM anchor space:
-
-```python
-from textme import ProjectionHead
-
-projector = ProjectionHead(
-    in_dim=1024,     # CLIP embedding dimension
-    proj_dim=2048,   # Hidden dimension (2 * in_dim)
-    out_dim=2560,    # Qwen3-Embedding-4B dimension
-    init_mode='xav', # Xavier initialization
-    dim_act='gelu'   # GELU activation
-)
-```
-
-### HardNegativeContrastiveLoss (from `textme/losses.py`)
-
-Contrastive loss with hard negative mining:
-
-```python
-from textme import HardNegativeContrastiveLoss
-
-criterion = HardNegativeContrastiveLoss(
-    temperature=0.07,       # τ = 0.07
-    top_perc_margin=0.9,    # Upper threshold
-    bottom_perc_margin=0.1  # Lower threshold
-)
-```
-
-### Offset Processing (from `textme/models/encoders.py`)
-
-Apply centering to embeddings for interchangeable space:
-
-```python
-from textme import process_embeddings
-
-# Center embeddings using precomputed offset
-centered_emb = process_embeddings(
-    embeddings,
-    offset=text_offset,  # μ_text
-    noise_std=0.0
-)
-```
+**Stage 3: Zero-Shot Cross-Modal Transfer.** At inference, we apply the same centering to modal embeddings and project them through the trained network. Since centered text and modal embeddings occupy the same region, the text-trained projector generalizes to unseen modalities without any paired supervision.
 
 ## Results
 
