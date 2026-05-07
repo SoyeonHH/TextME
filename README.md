@@ -7,6 +7,8 @@
 
 Official implementation of **TextME**, a text-only modality expansion framework that projects diverse modalities into LLM embedding space without requiring paired cross-modal data.
 
+## 🔥 News
+- **[2026.05]** TextME has been accepted to **ICML 2026**! 🎉
 
 <p align="center">
   <img src="assets/overview.jpg" width="90%">
