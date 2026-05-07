@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description" content="TextME: Bridging Unseen Modalities Through Text Descriptions">
+  <meta name="keywords" content="TextME, multimodal, modality expansion, text-only training, LLM, cross-modal retrieval">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TextME: Bridging Unseen Modalities Through Text Descriptions</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+
+  <!-- Bulma CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Academicons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+
+  <style>
+    .publication-title {
+      font-family: 'Google Sans', sans-serif;
+      font-weight: 700;
+    }
+    .publication-authors,
+    .publication-venue {
+      font-family: 'Google Sans', sans-serif;
+    }
+    .publication-venue {
+      color: #e74c3c;
+      font-weight: 600;
+      font-size: 1.2rem;
+    }
+    .hero-body {
+      padding-bottom: 1rem;
+    }
+    .section {
+      padding: 2rem 1.5rem;
+    }
+    .container.is-max-desktop {
+      max-width: 960px;
+    }
+    .content h2 {
+      font-family: 'Google Sans', sans-serif;
+      margin-top: 1.5rem;
+    }
+    .link-block a {
+      margin: 0 4px 8px 4px;
+    }
+    .teaser-image {
+      max-width: 100%;
+      height: auto;
+    }
+    .results-table {
+      font-size: 0.85rem;
+      overflow-x: auto;
+    }
+    .results-table table {
+      width: 100%;
+    }
+    .results-table th {
+      background-color: #f5f5f5;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .results-table td {
+      white-space: nowrap;
+    }
+    .results-table .best {
+      font-weight: 700;
+    }
+    .highlight-box {
+      background: linear-gradient(135deg, #667eea11, #764ba211);
+      border-left: 4px solid #667eea;
+      padding: 1.2rem 1.5rem;
+      border-radius: 0 8px 8px 0;
+      margin: 1.5rem 0;
+    }
+    .highlight-box .stat {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #667eea;
+    }
+    .highlight-box .stat-label {
+      font-size: 0.9rem;
+      color: #555;
+    }
+    .comparison-figure img {
+      border: 1px solid #eee;
+      border-radius: 8px;
+    }
+    .modality-tag {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin: 2px;
+    }
+    .mod-image { background: #e3f2fd; color: #1565c0; }
+    .mod-video { background: #fce4ec; color: #c62828; }
+    .mod-audio { background: #e8f5e9; color: #2e7d32; }
+    .mod-3d { background: #fff3e0; color: #e65100; }
+    .mod-xray { background: #f3e5f5; color: #7b1fa2; }
+    .mod-molecule { background: #e0f7fa; color: #00695c; }
+    .mod-remote { background: #efebe9; color: #4e342e; }
+    footer {
+      padding: 2rem 0;
+      background-color: #fafafa;
+    }
+    footer a {
+      color: #363636;
+    }
+    .tsne-gallery {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+    .tsne-gallery figure {
+      margin: 0;
+      text-align: center;
+    }
+    .tsne-gallery img {
+      border-radius: 8px;
+      border: 1px solid #eee;
+    }
+    .tsne-gallery figcaption {
+      font-size: 0.85rem;
+      color: #666;
+      margin-top: 0.4rem;
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- Hero Section -->
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop has-text-centered">
+      <h1 class="title is-1 publication-title">
+        TextME: Bridging Unseen Modalities<br>Through Text Descriptions
+      </h1>
+      <p class="publication-venue">ICML 2026</p>
+
+      <div class="is-size-5 publication-authors" style="margin-top: 1rem;">
+        <span class="author-block">Soyeon Hong<sup>1</sup>,</span>
+        <span class="author-block">Jinchan Kim<sup>1</sup>,</span>
+        <span class="author-block">Jaegook You<sup>1</sup>,</span>
+        <span class="author-block">Seungtaek Choi<sup>2</sup>,</span>
+        <span class="author-block">Suha Kwak<sup>3</sup>,</span>
+        <span class="author-block">Hyunsouk Cho<sup>4</sup></span>
+      </div>
+      <div class="is-size-6 publication-authors" style="margin-top: 0.5rem; color: #555;">
+        <span class="author-block"><sup>1</sup>Department of Artificial Intelligence, Ajou University,</span>
+        <span class="author-block"><sup>2</sup>Hankuk University of Foreign Studies,</span>
+        <span class="author-block"><sup>3</sup>POSTECH,</span>
+        <span class="author-block"><sup>4</sup>Department of Software, Ajou University</span>
+      </div>
+
+      <!-- Links -->
+      <div class="column has-text-centered" style="margin-top: 1.5rem;">
+        <div class="link-block">
+          <a href="https://arxiv.org/abs/2602.03098" class="button is-rounded is-dark" target="_blank">
+            <span class="icon"><i class="ai ai-arxiv"></i></span>
+            <span>arXiv</span>
+          </a>
+          <a href="https://arxiv.org/pdf/2602.03098" class="button is-rounded is-dark" target="_blank">
+            <span class="icon"><i class="fas fa-file-pdf"></i></span>
+            <span>Paper</span>
+          </a>
+          <a href="https://github.com/SoyeonHH/TextME" class="button is-rounded is-dark" target="_blank">
+            <span class="icon"><i class="fab fa-github"></i></span>
+            <span>Code</span>
+          </a>
+          <a href="https://huggingface.co/SoyeonHH/TextME" class="button is-rounded is-dark" target="_blank">
+            <span class="icon">&#129303;</span>
+            <span>Model</span>
+          </a>
+          <a href="https://huggingface.co/datasets/SoyeonHH/textme-data" class="button is-rounded is-dark" target="_blank">
+            <span class="icon">&#129303;</span>
+            <span>Dataset</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Teaser -->
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body has-text-centered" style="padding-top: 0;">
+      <img src="static/images/overview.jpg" alt="TextME Overview" class="teaser-image" style="max-width: 95%;">
+      <p class="subtitle has-text-centered" style="margin-top: 1rem; font-size: 1rem; color: #555;">
+        <b>Overview of the TextME pipeline.</b>
+        (a) Offset computation estimates modality-specific centroids from unpaired samples.
+        (b) During training, projection networks are learned by aligning centered text embeddings with a unified LLM anchor space, requiring only text descriptions.
+        (c) At inference, centering modal embeddings with the precomputed offset enables zero-shot cross-modal transfer without paired data.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Abstract -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="content">
+      <h2 class="title is-3">Abstract</h2>
+      <p>
+        Expanding multimodal representations to novel modalities is constrained by reliance on large-scale paired datasets
+        (e.g., text&ndash;image, text&ndash;audio, text&ndash;3D, text&ndash;molecule), which are costly and often infeasible in domains
+        requiring expert annotation such as medical imaging and molecular analysis.
+        We introduce <b>TextME</b>, the first text-only modality expansion framework, to the best of our knowledge, projecting diverse
+        modalities into LLM embedding space as a unified anchor. Our approach exploits the geometric structure of pretrained
+        contrastive encoders to enable zero-shot cross-modal transfer using only text descriptions, without paired supervision.
+        We empirically validate that such consistent modality gaps exist across image, video, audio, 3D, X-ray, and molecular
+        domains, demonstrating that text-only training can preserve substantial performance of pretrained encoders.
+        We further show that our framework enables emergent cross-modal retrieval between modality pairs not explicitly aligned
+        during training (e.g., audio-to-image, 3D-to-image). These results establish text-only training as a practical alternative
+        to paired supervision for modality expansion.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Key Highlights -->
+<section class="section" style="padding-top: 0;">
+  <div class="container is-max-desktop">
+    <div class="content">
+      <h2 class="title is-3">Key Highlights</h2>
+
+      <div class="highlight-box">
+        <div class="columns is-vcentered">
+          <div class="column is-one-third has-text-centered">
+            <div class="stat">74.5%</div>
+            <div class="stat-label">Avg. Performance Preservation Ratio</div>
+          </div>
+          <div class="column is-one-third has-text-centered">
+            <div class="stat">&gt;95%</div>
+            <div class="stat-label">Reduction in Data Requirements</div>
+          </div>
+          <div class="column is-one-third has-text-centered">
+            <div class="stat">~5K</div>
+            <div class="stat-label">Unpaired Samples for Offset Estimation</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="columns" style="margin-top: 1rem;">
+        <div class="column">
+          <div class="notification is-light">
+            <p><b>Text-Only Training</b></p>
+            <p>Train projection networks using only ~100K text descriptions per modality &mdash; no paired cross-modal data needed.</p>
+          </div>
+        </div>
+        <div class="column">
+          <div class="notification is-light">
+            <p><b>6 Diverse Modalities</b></p>
+            <p>
+              <span class="modality-tag mod-image">Image</span>
+              <span class="modality-tag mod-video">Video</span>
+              <span class="modality-tag mod-audio">Audio</span>
+              <span class="modality-tag mod-3d">3D</span>
+              <span class="modality-tag mod-xray">X-ray</span>
+              <span class="modality-tag mod-molecule">Molecule</span>
+            </p>
+          </div>
+        </div>
+        <div class="column">
+          <div class="notification is-light">
+            <p><b>Emergent Cross-Modal Retrieval</b></p>
+            <p>Enables retrieval between unseen modality pairs (Audio&rarr;3D, Molecule&rarr;Image) without any paired training.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- Method -->
+<section class="section" style="background-color: #fafafa; padding-top: 2rem;">
+  <div class="container is-max-desktop">
+    <div class="content">
+      <h2 class="title is-3">Method</h2>
+
+      <p>
+        TextME operates in two phases, leveraging the <b>consistent modality gap</b> &mdash; a systematic offset between text
+        and modal embeddings in pretrained contrastive encoders:
+      </p>
+
+      <div class="columns" style="margin-top: 1rem;">
+        <div class="column">
+          <h4>1. Offset Computation</h4>
+          <p>
+            Estimate modality-specific centroids (&mu;<sup>text</sup> and &mu;<sup>modal</sup>) from a small set of unpaired samples (~5K).
+            Centering with these offsets creates an <em>interchangeable space</em> where text and modal embeddings become
+            functionally equivalent.
+          </p>
+        </div>
+        <div class="column">
+          <h4>2. Text-to-Anchor Alignment</h4>
+          <p>
+            Train lightweight two-layer MLP projection networks using only text descriptions,
+            mapping centered text embeddings into a shared LLM embedding anchor space via contrastive loss with hard negative mining.
+          </p>
+        </div>
+        <div class="column">
+          <h4>3. Zero-Shot Transfer</h4>
+          <p>
+            At inference, center modal embeddings with the precomputed offset and pass through the text-trained projector.
+            This enables direct cross-modal retrieval and classification without ever seeing modal samples during training.
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- Results -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="content">
+      <h2 class="title is-3">Results</h2>
+
+      <h4>Zero-Shot Performance Across All Benchmarks</h4>
+      <p>
+        <b>PPR</b> (Performance Preservation Ratio) measures the percentage of pretrained encoder performance retained by each method.
+        TextME requires <b>zero paired data</b> and <b>zero labeled target data</b>.
+      </p>
+
+      <div class="results-table">
+        <table class="table is-bordered is-striped is-hoverable is-fullwidth">
+          <thead>
+            <tr>
+              <th rowspan="2">Method</th>
+              <th colspan="2">Image</th>
+              <th colspan="2">Video</th>
+              <th colspan="2">Audio</th>
+              <th>Mol.</th>
+              <th colspan="2">Audio Cls.</th>
+              <th colspan="2">3D Cls.</th>
+              <th>X-ray</th>
+              <th colspan="2">Emergent X&rarr;X</th>
+              <th>Data Req.</th>
+            </tr>
+            <tr>
+              <th>COCO</th><th>Flkr.</th>
+              <th>MSR.</th><th>DiDe.</th>
+              <th>ACaps</th><th>Clo.</th>
+              <th>Drug.</th>
+              <th>ASet.</th><th>ESC</th>
+              <th>MN40</th><th>Scan.</th>
+              <th>RSNA</th>
+              <th>A&rarr;I</th><th>3D&rarr;I</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="color: #999;">
+              <td><em>Pretrained</em></td>
+              <td>48.29</td><td>77.70</td>
+              <td>37.00</td><td>51.06</td>
+              <td>31.27</td><td>22.47</td>
+              <td>16.90</td>
+              <td>79.19</td><td>9.32</td>
+              <td>85.20</td><td>67.75</td>
+              <td>42.21</td>
+              <td>52.64</td><td>&times;</td>
+              <td>&times;</td>
+            </tr>
+            <tr>
+              <td>LanguageBind</td>
+              <td>44.53</td><td>73.42</td>
+              <td>45.30</td><td>65.22</td>
+              <td>36.85</td><td>12.42</td>
+              <td>11.32</td>
+              <td>&times;</td><td>18.33</td>
+              <td>94.00</td><td>&times;</td>
+              <td>&times;</td>
+              <td>&times;</td><td>&times;</td>
+              <td>10M pairs</td>
+            </tr>
+            <tr>
+              <td>Ex-MCR</td>
+              <td>40.24</td><td>71.89</td>
+              <td>&times;</td><td>&times;</td>
+              <td>&times;</td><td>19.07</td>
+              <td>7.01</td>
+              <td>&times;</td><td>6.67</td>
+              <td>71.20</td><td>66.53</td>
+              <td>40.31</td>
+              <td>&times;</td><td>1.57</td>
+              <td>1M pairs*</td>
+            </tr>
+            <tr>
+              <td>COX&dagger;</td>
+              <td>0.02</td><td>0.20</td>
+              <td>5.10</td><td>0.00</td>
+              <td>0.10</td><td>0.08</td>
+              <td>0.11</td>
+              <td>7.63</td><td>1.26</td>
+              <td>2.00</td><td>4.05</td>
+              <td>2.84</td>
+              <td>22.53</td><td>0.02</td>
+              <td>10K labels</td>
+            </tr>
+            <tr class="best" style="background-color: #e8f5e9;">
+              <td><b>TextME (Ours)</b></td>
+              <td><b>28.63</b></td><td><b>51.66</b></td>
+              <td><b>26.40</b></td><td><b>45.82</b></td>
+              <td><b>24.10</b></td><td><b>15.35</b></td>
+              <td><b>7.81</b></td>
+              <td><b>34.75</b></td><td><b>5.80</b></td>
+              <td><b>77.25</b></td><td><b>70.86</b></td>
+              <td><b>42.15</b></td>
+              <td><b>46.59</b></td><td><b>1.06</b></td>
+              <td><b>100K text</b></td>
+            </tr>
+            <tr style="background-color: #f5f5f5; font-weight: 600;">
+              <td>PPR (%)</td>
+              <td>59.3</td><td>66.5</td>
+              <td>71.4</td><td>89.7</td>
+              <td>77.1</td><td>68.3</td>
+              <td>46.2</td>
+              <td>43.9</td><td>62.2</td>
+              <td>90.7</td><td>104.6</td>
+              <td>99.9</td>
+              <td>88.5</td><td>&times;</td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size: 0.85rem; color: #777;">
+        * Indirect: uses overlapping modality from existing MCR spaces.
+        &dagger; Our reproduction.
+        Bold indicates best among unpaired methods.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Emergent Cross-Modal Retrieval -->
+<section class="section" style="background-color: #fafafa;">
+  <div class="container is-max-desktop">
+    <div class="content">
+      <h2 class="title is-3">Emergent Cross-Modal Retrieval</h2>
+      <p>
+        TextME enables retrieval between modality pairs <b>never seen during training</b>. Audio queries retrieve
+        semantically related 3D objects, and molecular structures retrieve contextually appropriate images &mdash;
+        demonstrating that text-anchored alignment creates semantic bridges across arbitrary modalities.
+      </p>
+      <div class="has-text-centered comparison-figure">
+        <img src="static/images/case_study_audio_to_3d.png" alt="Emergent cross-modal retrieval: Audio to 3D" style="max-width: 90%; border-radius: 8px;">
+        <p style="margin-top: 0.8rem; font-size: 0.9rem; color: #555;">
+          <b>Audio&rarr;3D retrieval without paired supervision.</b>
+          Audio queries retrieve semantically related 3D objects. TextME retrieves coherent results while the Naive baseline fails entirely.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- t-SNE Visualization -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="content">
+      <h2 class="title is-3">Embedding Visualization</h2>
+      <p>
+        t-SNE visualizations show how TextME progressively aligns modal embeddings with text embeddings in the LLM anchor space across training stages.
+      </p>
+      <div class="tsne-gallery">
+        <figure>
+          <img src="static/images/tsne_image_stages.png" alt="t-SNE Image">
+          <figcaption>Image (CLIP)</figcaption>
+        </figure>
+        <figure>
+          <img src="static/images/tsne_audio_stages.png" alt="t-SNE Audio">
+          <figcaption>Audio (CLAP)</figcaption>
+        </figure>
+        <figure>
+          <img src="static/images/tsne_3d_stages.png" alt="t-SNE 3D">
+          <figcaption>3D (Uni3D)</figcaption>
+        </figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BibTeX -->
+<section class="section" id="BibTeX" style="background-color: #fafafa;">
+  <div class="container is-max-desktop content">
+    <h2 class="title is-3">BibTeX</h2>
+    <pre><code>@article{hong2026textme,
+  title={TextME: Bridging Unseen Modalities Through Text Descriptions},
+  author={Hong, Soyeon and Kim, Jinchan and You, Jaegook and Choi, Seungtaek and Kwak, Suha and Cho, Hyunsouk},
+  journal={arXiv preprint arXiv:2602.03098},
+  year={2026}
+}</code></pre>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <p>
+        This website template is borrowed from <a href="https://nerfies.github.io/" target="_blank">Nerfies</a>.
+      </p>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
