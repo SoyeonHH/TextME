@@ -1,6 +1,7 @@
 # TextME: Bridging Unseen Modalities Through Text Descriptions
 
 [![arXiv](https://img.shields.io/badge/arXiv-2602.03098-b31b1b.svg)](https://arxiv.org/abs/2602.03098)
+[![Project Page](https://img.shields.io/badge/Project-Page-blue)](https://soyeonhh.github.io/TextME)
 [![HuggingFace](https://img.shields.io/badge/🤗%20HuggingFace-Model-blue)](https://huggingface.co/SoyeonHH/TextME)
 [![HuggingFace](https://img.shields.io/badge/🤗%20HuggingFace-Dataset-yellow)](https://huggingface.co/datasets/SoyeonHH/textme-data)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
